@@ -19,6 +19,7 @@ public:
         }
     }
 
+    // Copy constructor – deep copy
     CrossArray(const CrossArray &o) : capacity(o.capacity), count(o.count) {
         data = new int*[capacity];
         len = new int[capacity];
@@ -35,6 +36,37 @@ public:
             }
         }
     }
+    // Copy assignment – deep copy
+    CrossArray &operator=(const CrossArray &o) {
+        if (this != &o) {
+            // clean current resources
+            for (int i = 0; i < capacity; ++i) {
+                delete [] data[i];
+            }
+            delete [] data;
+            delete [] len;
+            // copy new state
+            capacity = o.capacity;
+            count = o.count;
+            data = new int*[capacity];
+            len = new int[capacity];
+            for (int i = 0; i < capacity; ++i) {
+                if (o.data[i]) {
+                    len[i] = o.len[i];
+                    data[i] = new int[len[i]];
+                    for (int j = 0; j < len[i]; ++j) {
+                        data[i][j] = o.data[i][j];
+                    }
+                } else {
+                    data[i] = nullptr;
+                    len[i] = 0;
+                }
+            }
+        }
+        return *this;
+    }
+
+
 
     CrossArray &WhichGreater(CrossArray &o) {
         long long total_this = 0, total_o = 0;
@@ -49,6 +81,7 @@ public:
     }
 
     bool IsSame(const CrossArray &o) {
+        // true only if both objects share the same underlying storage block
         return data == o.data;
     }
 
@@ -95,7 +128,11 @@ public:
         capacity = newcap;
     }
 
-    const int *AtArray(int i) {
+    // Non-const overload for AtArray
+    int *AtArray(int i) {
+        return data[i];
+    }
+    const int *AtArray(int i) const {
         return data[i];
     }
 
@@ -105,7 +142,7 @@ public:
 
     ~CrossArray() {
         for (int i = 0; i < capacity; ++i) {
-            if (data[i]) delete [] data[i];
+            delete [] data[i];
         }
         delete [] data;
         delete [] len;
